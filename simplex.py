@@ -121,7 +121,7 @@ class Simplex:
             Z -= b_[pivot_row] * k_difference / e_p
 
             # This line handles the pivot row elements
-            B_inv[pivot_row, :] = B_inv[pivot_row] / e_p
+            B_inv[pivot_row] = B_inv[pivot_row] / e_p
             b_[pivot_row] = b_[pivot_row] / e_p
 
             tmp = self.N_indexes[k]
