@@ -24,7 +24,6 @@ class Simplex:
         self.target = target
         self.B_indexes = []
         self.N_indexes = []
-        self.it_no = 0
 
     def is_finished(self, differences) -> bool:
         return np.all(differences >= 0) if self.target == 'max' else np.all(differences <= 0)
@@ -71,7 +70,6 @@ class Simplex:
                     pass
 
         it_no = 1
-        Y_k = 1
 
         omega = C[:, self.B_indexes] @ B_inv
         b_ = B_inv @ b
@@ -87,7 +85,7 @@ class Simplex:
                 self.solution = list(b_.flatten())
                 self.it_no = it_no
                 break
-            
+
             # k-index is the new base index
             k = np.argmin(differences) if self.target == 'max' else np.argmax(
                 differences)
@@ -205,7 +203,8 @@ target = 'min'
 tests.append({'target': target, 'A': A, 'b': b, 'C': C})
 
 for i, test in enumerate(tests):
-    print(f"\n============== Running test {i + 1} - {test['target'].upper()} ==============")
+    print(f"\n============== Running test {
+          i + 1} - {test['target'].upper()} ==============")
     simplex = Simplex(test['A'], test['b'], test['C'], test['target'])
     simplex.solve()
     simplex.print_solution()
