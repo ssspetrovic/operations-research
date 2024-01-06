@@ -108,7 +108,7 @@ class Simplex:
             e_r = B_inv[pivot_row, :]
             # e_c = Y_k[row][0]
 
-            # This line handles all of the non-pivot row elements
+            # This line handles all of the non-pivot row elements of B_inv
             B_inv[non_pivot_rows, :] -= [e_r * Y_k[row]
                                          [0] / e_p for row in non_pivot_rows]
 
