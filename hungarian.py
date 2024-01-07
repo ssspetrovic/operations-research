@@ -1,14 +1,13 @@
 import numpy as np
-
 from string import ascii_uppercase
 
 
 class Hungarian:
     def __init__(self, M) -> None:
         assert M.shape[0] == M.shape[1], "Matrix must be square!"
-        self.len = M.shape[0]
-        self.persons = [i for i in range(1, self.len + 1)]
-        self.jobs = list(ascii_uppercase)[:self.len]
+        self.size = M.shape[0]
+        self.persons = [i for i in range(1, self.size + 1)]
+        self.jobs = list(ascii_uppercase)[:self.size]
         self.original = M
         self.M = M.copy()
         self.Z = 0
@@ -16,7 +15,7 @@ class Hungarian:
     def process_zero(self, index: tuple[int, int], independent_indexes: set, crossed_indexes: set):
         independent_indexes.add(index)
 
-        for ind in range(self.len):
+        for ind in range(self.size):
             if self.M[ind, index[1]] == 0 and ind != index[0] and ind not in {i[0] for i in independent_indexes}:
                 crossed_indexes.add((ind, index[1]))
 
@@ -26,7 +25,7 @@ class Hungarian:
     def assign_jobs(self, independent_indexes):
         for p, j in sorted(independent_indexes, key=lambda x: x[0]):
             print(f" Person {self.persons[p]
-                            } should work on job {self.jobs[j]}")
+                             } should work on job {self.jobs[j]}")
             self.Z += self.original[p, j]
 
     def solve(self):
@@ -36,15 +35,14 @@ class Hungarian:
         self.M -= self.M.min(axis=1, keepdims=True)
 
         # Mark the columns that don't contain 0
-        marked_col_indexes = np.where(~(M == 0).any(axis=0))[0]
-        # print(marked_col_indexes)
+        marked_col_indexes = np.where(~(self.M == 0).any(axis=0))[0]
         self.M[:, marked_col_indexes] -= self.M[:,
                                                 marked_col_indexes].min(axis=0, keepdims=True)
 
         while True:
             independent_indexes = set()
             crossed_indexes = set()
-            all_indexes = set(range(self.len))
+            all_indexes = set(range(self.size))
 
             processed_rows = set()
             unprocessed_rows = all_indexes - processed_rows
@@ -56,79 +54,63 @@ class Hungarian:
                 rows_to_remove = set()
 
                 for row in unprocessed_rows.copy():
-                    # Find all column indexes which contain zero
                     zero_cols = np.where(self.M[row, :] == 0)[0]
-
-                    # Find all of the non crossed col indexes that contain zero
                     uncrossed_zero_cols = [col for col in zero_cols if (
                         row, col) not in crossed_indexes]
 
-                    if flag:
-                        # If there are is only one zero in current row
-                        if len(uncrossed_zero_cols) == 1:
-                            # Process the first uncrossed zero
-                            self.process_zero(
-                                (row, uncrossed_zero_cols[0]), independent_indexes, crossed_indexes)
-                            rows_to_remove.add(row)
+                    if flag and len(uncrossed_zero_cols) == 1:
+                        self.process_zero(
+                            (row, uncrossed_zero_cols[0]), independent_indexes, crossed_indexes)
+                        rows_to_remove.add(row)
+                    elif not flag and len(uncrossed_zero_cols) != 0:
+                        self.process_zero(
+                            (row, uncrossed_zero_cols[0]), independent_indexes, crossed_indexes)
+                        rows_to_remove.add(row)
+                        flag = True
+                        break
 
-                    else:
-                        if len(uncrossed_zero_cols) != 0:
-                            self.process_zero(
-                                (row, uncrossed_zero_cols[0]), independent_indexes, crossed_indexes)
-                            rows_to_remove.add(row)
-                            flag = True
-                            unprocessed_rows -= rows_to_remove
-                            rows_to_remove = set()
-                            flag = True
-                            break
-
-                    unprocessed_rows -= rows_to_remove
-                    rows_to_remove = set()
-
+                unprocessed_rows -= rows_to_remove
+                rows_to_remove = set()
                 flag = False
 
                 zero_indices = np.argwhere(self.M == 0)
-                uncrossed_zero_indices = [(row, col) for row, col in zero_indices if (
-                    row, col) not in independent_indexes and (row, col) not in crossed_indexes]
+                uncrossed_zero_indices = [(row, col) for row, col in zero_indices if
+                                          (row, col) not in independent_indexes and (row, col) not in crossed_indexes]
 
                 if len(uncrossed_zero_indices) == 0:
                     break
 
-            # Mark the rows where there aren't any independent zeros
-            independent_row_indexes = set(index[0]
-                                          for index in independent_indexes)
-
-            independent_col_indexes = set(
-                index[1] for index in independent_indexes)
+            independent_row_indexes = {index[0]
+                                       for index in independent_indexes}
+            independent_col_indexes = {index[1]
+                                       for index in independent_indexes}
 
             if all_indexes == independent_col_indexes:
-                print("\n--- Problem solved: ---")
+                print("\n----- Problem solved -----")
                 print("Final matrix:")
                 print(self.M)
                 print("\nJob schedule:")
                 self.assign_jobs(independent_indexes)
-                print(" Z =", self.Z)
+                print("\nZ =", self.Z)
+                print("--------------------------")
                 break  # Exit the loop if all columns have independent zeros
 
             marked_row_indexes = all_indexes - independent_row_indexes
-
-            # Cross all of the columns that contain zero in marked rows
             crossed_col_indexes = set()
+
             for row in marked_row_indexes:
-                for i in range(self.len):
+                for i in range(self.size):
                     if self.M[row, i] == 0:
                         crossed_col_indexes.add(i)
 
-            # Mark all of the rows that don't contain independent zero in the crossed column
             for col in crossed_col_indexes:
-                independent_rows = {index[0]
-                                    for index in independent_indexes if index[1] == col}
-                for r in range(self.len):
+                independent_rows = {
+                    index[0] for index in independent_indexes if index[1] == col}
+                for r in range(self.size):
                     if self.M[r, col] == 0 and r in independent_rows:
                         marked_row_indexes.add(r)
 
             crossed_row_indexes = all_indexes - marked_row_indexes
-
             regular_row_indexes = np.array(
                 list(all_indexes - crossed_row_indexes))
             regular_col_indexes = np.array(
@@ -143,7 +125,8 @@ class Hungarian:
                 crossed_col_indexes))] += min_el
 
 
-M = np.array([
+print("Solving first matrix:")
+matrix_1 = np.array([
     [10, 4, 6, 10, 12],
     [11, 7, 7, 9, 14],
     [13, 8, 12, 14, 15],
@@ -151,5 +134,10 @@ M = np.array([
     [17, 11, 17, 20, 19]
 ])
 
-hungarian = Hungarian(M)
-hungarian.solve()
+hungarian_1 = Hungarian(matrix_1)
+hungarian_1.solve()
+
+matrix_2 = matrix_1 * 10
+print("\nSolving second matrix:")
+hungarian_2 = Hungarian(matrix_2)
+hungarian_2.solve()
