@@ -6,17 +6,17 @@ from itertools import combinations
 
 
 class Simplex:
-    def validate_matrix(self, A, b, C, target) -> AssertionError | None:
+    def validate_matrix(self, A: np.ndarray, b: np.ndarray, C: np.ndarray, target: str) -> AssertionError | None:
         assert target in [
             'max', 'min'], "Only min and max problems can be solved!"
         assert A.shape[0] == b.shape[0], "A row length must be equal to b row length!"
         assert A.shape[1] == C.shape[1], "A column length must be equal to C column length!"
 
-    def check_singularity(self, matrix) -> ValueError | None:
+    def check_singularity(self, matrix: np.ndarray) -> ValueError | None:
         if matrix_rank(matrix) < matrix.shape[0]:
             raise ValueError("Matrix cannot be singular!")
 
-    def __init__(self, A, b, C, target) -> None:
+    def __init__(self, A: np.ndarray, b: np.ndarray, C: np.ndarray, target: str) -> None:
         self.validate_matrix(A, b, C, target)
         self.A = A
         self.b = b
@@ -25,10 +25,10 @@ class Simplex:
         self.B_indexes = []
         self.N_indexes = []
 
-    def is_finished(self, differences) -> bool:
+    def is_finished(self, differences: np.ndarray) -> bool:
         return np.all(differences >= 0) if self.target == 'max' else np.all(differences <= 0)
 
-    def solve(self, limit=10) -> int:
+    def solve(self, limit: int = 10) -> None:
         b = self.b
 
         # Creating the identity matrix with the dimensions of A
@@ -82,7 +82,7 @@ class Simplex:
 
             if self.is_finished(differences):
                 self.Z = Z[0][0]
-                self.solution = list(b_.flatten())
+                self.solution = tuple(b_.flatten())
                 self.it_no = it_no
                 break
 
@@ -131,7 +131,7 @@ class Simplex:
 
             it_no += 1
 
-    def print_solution(self):
+    def print_solution(self) -> None:
         print(f"Number of iterations: {self.it_no}")
         print(f"Z = {self.Z}")
         print("\nBase variables:")
@@ -166,7 +166,7 @@ tests.append({'target': target, 'A': A, 'b': b, 'C': C})
 A = np.array([
     [1, 0, 1],
     [0, 2, 0],
-    [3, 2, 0,]
+    [3, 2, 0, ]
 ])
 
 b = np.array([
