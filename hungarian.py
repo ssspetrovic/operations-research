@@ -11,8 +11,10 @@ class Hungarian:
         self.original = M
         self.M = M.copy()
         self.Z = 0
+        self.independent_indexes = []
 
     def process_zero(self, index: tuple[int, int], independent_indexes: set, crossed_indexes: set) -> None:
+        # Process a single zero
         independent_indexes.add(index)
 
         for ind in range(self.size):
@@ -23,9 +25,18 @@ class Hungarian:
                 crossed_indexes.add((index[0], ind))
 
     def assign_jobs(self, independent_indexes: set) -> None:
+        # Assign the jobs based on the final matrix
         for p, j in sorted(independent_indexes, key=lambda x: x[0]):
-            print(f" Person {self.persons[p]} should work on job {self.jobs[j]}")
+            print(f" Person {self.persons[p]
+                             } should work on job {self.jobs[j]}")
             self.Z += self.original[p, j]
+
+    def print_solution(self) -> None:
+        print("\nFinal matrix:")
+        print(self.M)
+        print("\nJob schedule:")
+        self.assign_jobs(self.independent_indexes)
+        print("\nZ =", self.Z)
 
     def solve(self) -> None:
         print(self.M)
@@ -35,7 +46,8 @@ class Hungarian:
 
         # Mark the columns that don't contain 0
         marked_col_indexes = np.where(~(self.M == 0).any(axis=0))[0]
-        self.M[:, marked_col_indexes] -= self.M[:, marked_col_indexes].min(axis=0, keepdims=True)
+        self.M[:, marked_col_indexes] -= self.M[:,
+                                                marked_col_indexes].min(axis=0, keepdims=True)
 
         while True:
             independent_indexes = set()
@@ -57,10 +69,12 @@ class Hungarian:
                         row, col) not in crossed_indexes]
 
                     if flag and len(uncrossed_zero_cols) == 1:
-                        self.process_zero((row, uncrossed_zero_cols[0]), independent_indexes, crossed_indexes)
+                        self.process_zero(
+                            (row, uncrossed_zero_cols[0]), independent_indexes, crossed_indexes)
                         rows_to_remove.add(row)
                     elif not flag and len(uncrossed_zero_cols) != 0:
-                        self.process_zero((row, uncrossed_zero_cols[0]), independent_indexes, crossed_indexes)
+                        self.process_zero(
+                            (row, uncrossed_zero_cols[0]), independent_indexes, crossed_indexes)
                         rows_to_remove.add(row)
                         flag = True
                         break
@@ -76,17 +90,13 @@ class Hungarian:
                 if len(uncrossed_zero_indices) == 0:
                     break
 
-            independent_row_indexes = {index[0] for index in independent_indexes}
-            independent_col_indexes = {index[1] for index in independent_indexes}
+            independent_row_indexes = {index[0]
+                                       for index in independent_indexes}
+            independent_col_indexes = {index[1]
+                                       for index in independent_indexes}
 
             if all_indexes == independent_col_indexes:
-                print("\n----- Problem solved -----")
-                print("Final matrix:")
-                print(self.M)
-                print("\nJob schedule:")
-                self.assign_jobs(independent_indexes)
-                print("\nZ =", self.Z)
-                print("--------------------------")
+                self.independent_indexes = independent_indexes
                 break  # Exit the loop if all columns have independent zeros
 
             marked_row_indexes = all_indexes - independent_row_indexes
@@ -98,34 +108,22 @@ class Hungarian:
                         crossed_col_indexes.add(i)
 
             for col in crossed_col_indexes:
-                independent_rows = {index[0] for index in independent_indexes if index[1] == col}
+                independent_rows = {
+                    index[0] for index in independent_indexes if index[1] == col}
                 for r in range(self.size):
                     if self.M[r, col] == 0 and r in independent_rows:
                         marked_row_indexes.add(r)
 
             crossed_row_indexes = all_indexes - marked_row_indexes
-            regular_row_indexes = np.array(list(all_indexes - crossed_row_indexes))
-            regular_col_indexes = np.array(list(all_indexes - crossed_col_indexes))
+            regular_row_indexes = np.array(
+                list(all_indexes - crossed_row_indexes))
+            regular_col_indexes = np.array(
+                list(all_indexes - crossed_col_indexes))
 
-            min_el = min(self.M[i, j] for i in regular_row_indexes for j in regular_col_indexes)
+            min_el = min(self.M[i, j]
+                         for i in regular_row_indexes for j in regular_col_indexes)
 
-            self.M[np.ix_(list(regular_row_indexes), list(regular_col_indexes))] -= min_el
-            self.M[np.ix_(list(crossed_row_indexes), list(crossed_col_indexes))] += min_el
-
-
-print("Solving first matrix:")
-matrix_1 = np.array([
-    [10, 4, 6, 10, 12],
-    [11, 7, 7, 9, 14],
-    [13, 8, 12, 14, 15],
-    [14, 16, 13, 17, 1],
-    [17, 11, 17, 20, 19]
-])
-
-hungarian_1 = Hungarian(matrix_1)
-hungarian_1.solve()
-
-matrix_2 = matrix_1 * 10
-print("\nSolving second matrix:")
-hungarian_2 = Hungarian(matrix_2)
-hungarian_2.solve()
+            self.M[np.ix_(list(regular_row_indexes), list(
+                regular_col_indexes))] -= min_el
+            self.M[np.ix_(list(crossed_row_indexes), list(
+                crossed_col_indexes))] += min_el

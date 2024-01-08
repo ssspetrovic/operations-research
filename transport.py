@@ -27,7 +27,7 @@ class Transport:
 
     def calculate_z(self) -> float:
         # Calculate and return the total cost Z
-        return np.sum(self.A * M)
+        return np.sum(self.A * self.M)
 
     def print_solution(self) -> None:
         # Print the final solution matrix and the total cost Z
@@ -120,35 +120,3 @@ class Transport:
             # Remove the row or column if the supply or demand has been exhausted
             unprocessed_rows = [r for r in unprocessed_rows if S[r] != 0]
             unprocessed_cols = [c for c in unprocessed_cols if D[c] != 0]
-
-
-# Example usage
-M = np.array([
-    [10, 12, 0],
-    [8, 4, 3],
-    [6, 9, 4],
-    [7, 8, 5]
-])
-
-S = np.array([20, 30, 20, 10])
-D = np.array([10, 40, 30])
-
-transport = Transport(M, S, D)
-
-print("*" * 35)
-print("Testing North-West corner method")
-print("*" * 35)
-transport.solve_north_west()
-transport.print_solution()
-
-print("*" * 35)
-print("Testing Lowest Cost method")
-print("*" * 35)
-transport.solve_lowest_cost()
-transport.print_solution()
-
-print("*" * 35)
-print("Testing Vogel method")
-print("*" * 35)
-transport.solve_vogel()
-transport.print_solution()
