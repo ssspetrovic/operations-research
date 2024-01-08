@@ -17,43 +17,45 @@ This repository contains implementations of various Operations Research algorith
 
 ### Prerequisites
 
+Make sure you have the following installed:
+
 - [Python 3.12](https://www.python.org/downloads/release)
 - [NumPy](https://numpy.org/)
 
 ### Setup Virtual Environment
 
-#### Clone the repository
-```bash
-git clone https://github.com/your-username/operations-research.git
-```
+1. **Clone the repository**
+    ```bash
+    git clone https://github.com/your-username/operations-research.git
+    ```
 
-#### Navigate to the project directory
-```bash
-cd operations-research
-```
+2. **Navigate to the project directory**
+    ```bash
+    cd operations-research
+    ```
 
-#### Create a virtual environment
-```bash
-python -m venv venv
-```
+3. **Create a virtual environment**
+    ```bash
+    python -m venv venv
+    ```
 
-#### Activate the virtual environment
-- On Windows
-```cmd
-venv\Scripts\activate
-```
-- On macOS/Linux
-```bash
-source venv/bin/activate
-```
+4. **Activate the virtual environment**
+    - On Windows
+    ```cmd
+    venv\Scripts\activate
+    ```
+    - On macOS/Linux
+    ```bash
+    source venv/bin/activate
+    ```
 
-#### Install required dependencies
+### Install Required Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-
-#### Run Tests
+## Running the Algorithms
+The test file contains several matrices for testing the corectness of the algorithhms. It can be run by using the following command:
 ```bash
 python tests.py
 ```
