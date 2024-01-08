@@ -4,9 +4,9 @@ This repository contains implementations of various Operations Research algorith
 
 ## Algorithms Included
 
-1. **Hungarian Algorithm**: An algorithm for solving the assignment problem in combinatorial optimization, finding an optimal assignment of persons to jobs.
+1. **Simplex Algorithm**: A linear programming algorithm used for solving optimization problems by iteratively improving feasible solutions.
 
-2. **Simplex Algorithm**: A linear programming algorithm used for solving optimization problems by iteratively improving feasible solutions.
+2. **Hungarian Algorithm**: An algorithm for solving the assignment problem in combinatorial optimization, finding an optimal assignment of persons to jobs.
 
 3. **Transportation Algorithms**:
    - **Northwest Corner Method**: A heuristic algorithm for finding an initial feasible solution to the transportation problem, commonly used in logistics.
@@ -22,18 +22,38 @@ This repository contains implementations of various Operations Research algorith
 
 ### Setup Virtual Environment
 
+#### Clone the repository
 ```bash
-# Clone the repository
 git clone https://github.com/your-username/operations-research.git
+```
 
-# Navigate to the project directory
+#### Navigate to the project directory
+```bash
 cd operations-research
+```
 
-# Create a virtual environment
+#### Create a virtual environment
+```bash
 python -m venv venv
+```
 
-# Activate the virtual environment
-# On Windows
+#### Activate the virtual environment
+- On Windows
+```cmd
 venv\Scripts\activate
-# On macOS/Linux
+```
+- On macOS/Linux
+```bash
 source venv/bin/activate
+```
+
+#### Install required dependencies
+```bash
+pip install -r requirements.txt
+```
+
+
+#### Run Tests
+```bash
+python tests.py
+```
